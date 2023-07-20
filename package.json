@@ -1,0 +1,23 @@
+{
+  "name": "filewatcher",
+  "version": "1.0.0",
+  "description": "watching folders and sends files",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "author": "Hossam Hemaia",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "compression": "^1.7.4",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "oracledb": "^6.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
