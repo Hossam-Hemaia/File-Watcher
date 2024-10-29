@@ -2,14 +2,27 @@ const path = require("path");
 const express = require("express");
 const compression = require("compression");
 const dotenv = require("dotenv");
+const multer = require("multer");
+const slugify = require("slugify");
 const connectDB = require("./dbConnect/dbConnect");
 
-const utilities = require("./utils/utilities");
+const fileRouter = require("./routes/file");
+// const utilities = require("./utils/utilities");
 
 const app = express();
 dotenv.config();
 
-const folderPath = "./images";
+// const folderPath = "./files";
+
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const folderName = req.body.folderName;
+    cb(null, `files/${folderName}`);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + slugify(file.originalname));
+  },
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -21,9 +34,10 @@ async function dbConn() {
 
 dbConn();
 
-utilities.watchFiles(folderPath);
+app.use("/files", express.static(path.join(__dirname, "files")));
+app.use(multer({ storage: fileStorage }).single("file"));
 
-app.use("/images", express.static(path.join(__dirname, "images")));
+app.use(process.env.api, fileRouter);
 
 app.use((error, req, res, next) => {
   console.log(error);

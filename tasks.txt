@@ -1,0 +1,5 @@
+create main folder api to get the main folder path and start watching it
+make an api to create a company folder inside the main folder==>Done
+make an api to add file to a selected company folder and save the file path in the database
+make an api to delete file from company folder when it is deleted from the database
+make an api to delete company folder and its content

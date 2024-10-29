@@ -1,4 +1,7 @@
+const { create } = require("domain");
 const fs = require("fs");
+const { resolve } = require("path");
+const path = require("path");
 const connectDB = require("../dbConnect/dbConnect");
 
 /*
@@ -8,9 +11,25 @@ const connectDB = require("../dbConnect/dbConnect");
 3- returns the folder path to the user so he can configure his scanning machien
    by setting the folder path as the output path to the scanned files
 */
-exports.createFolder = () => {
+exports.createFolder = (folderName) => {
+  const mainDirectory = path.join("files", folderName);
+  return new Promise((resolve, reject) => {
+    fs.access(mainDirectory, fs.constants.F_OK, (err) => {
+      if (err) {
+        fs.mkdir(mainDirectory, { recursive: true }, (err) => {
+          if (err) {
+            return resolve(false);
+          } else {
+            console.log("folder created successfully!");
+            return resolve(true);
+          }
+        });
+      } else {
+        return resolve(false);
+      }
+    });
+  });
   /* 
-  1- create folder with a given name
   2- save the folder path in the data base
   3- return the absolute path of the created folder to the client
   */
@@ -66,7 +85,7 @@ exports.watchFiles = (folderPath) => {
 ===================== Watch Folders Function =======================
 1- the function gets the folders paths from the database
 2- it loops over the folders paths contuinuesly to monitor it
-3- if any file added to any folders it starts creating a path and u url for it
+3- if any file added to any folders it starts creating a path and url for it
 */
 exports.watchFolders = (folderPaths) => {
   // when applying dynamic folders get the folders list you want to watch and loop over it
@@ -86,5 +105,56 @@ exports.watchFolders = (folderPaths) => {
     }
   } catch (err) {
     console.log(err);
+  }
+};
+
+exports.isFolderExist = (folderName) => {
+  try {
+    const folderPath = path.join("files", folderName);
+    return new Promise((resolve) => {
+      fs.access(folderPath, fs.constants.F_OK, (err) => {
+        if (err) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
+    });
+  } catch (err) {
+    throw err;
+  }
+};
+
+exports.deleteFile = (folderName, fileName) => {
+  try {
+    const filePath = path.join("files", folderName, fileName);
+    return new Promise((resolve, reject) => {
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          return resolve(false);
+        } else {
+          return resolve(true);
+        }
+      });
+    });
+  } catch (err) {
+    throw err;
+  }
+};
+
+exports.deleteFolder = (folderName) => {
+  try {
+    const folderPath = path.join("files", folderName);
+    return new Promise((resolve, reject) => {
+      fs.rm(folderPath, { recursive: true, force: true }, (err) => {
+        if (err) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
+    });
+  } catch (err) {
+    throw err;
   }
 };
